@@ -105,23 +105,53 @@
             <p>📍 Только ваш район (10 км радиус)</p>
             <p>📞 Контакт после выбора (безопасно)</p>
             <p>⭐ Бесплатно для клиентов и мастеров</p>
-            <p>🚀 Работает в Якутске, Нюрбе, Мирном</p>
+            <p>🚀 Работает в Якутии</p>
         </div>
     </div>
 
     <script>
+        <script>
         // Telegram Login Widget
         function loginWithTelegram() {
-            alert('🔐 Telegram-авторизация будет работать после настройки бота\n\nВаш токен: 8495635478:AAHHHmgzaExuFLxxK4bwFLPQNoNi7ZoZNAE\n\nСейчас используйте демо-режим для тестирования интерфейса.');
+            const botUsername = 'vremonte_yakutia_bot';
+            
+            alert('🔐 Откройте бота в Telegram:\n\n1. Перейдите: t.me/vremonte_yakutia_bot\n2. Нажмите START\n3. Откроется приложение\n\nВаш токен: 8495635478:AAHHHmgzaExuFLxxK4bwFLPQNoNi7ZoZNAE');
+            
+            window.open(`https://t.me/${botUsername}`, '_blank');
         }
         
         // Demo Mode
         function showDemoMode() {
-            alert('🎮 ДЕМО-РЕЖИМ АКТИВИРОВАН\n\nТеперь вы можете:\n• Создавать тестовые заказы\n• Просматривать ленту заказов\n• Тестировать интерфейс клиента/мастера\n• Проверять систему откликов\n\n📊 Все данные сохраняются локально');
+            // Сохраняем демо-данные
+            localStorage.setItem('vremonte_demo', 'true');
+            localStorage.setItem('vremonte_user', JSON.stringify({
+                id: 'demo_001',
+                firstName: 'Демо',
+                lastName: 'Пользователь',
+                username: 'demo_user',
+                isDemo: true
+            }));
             
-            // Переход в демо-приложение
-            window.location.href = 'app.html?demo=true';
+            // Перезагружаем страницу
+            alert('🎮 ДЕМО-РЕЖИМ АКТИВИРОВАН\n\nПерезагружаем приложение...');
+            window.location.reload();
         }
+        
+        // Проверяем демо-режим при загрузке
+        window.addEventListener('DOMContentLoaded', function() {
+            const isDemo = localStorage.getItem('vremonte_demo') === 'true';
+            const userData = localStorage.getItem('vremonte_user');
+            
+            if (isDemo && userData) {
+                // Показываем главный экран через app.js
+                // app.js должен быть загружен
+                setTimeout(function() {
+                    if (window.app) {
+                        window.app.startDemo();
+                    }
+                }, 500);
+            }
+        });
         
         // PWA Installation
         if ('serviceWorker' in navigator) {
@@ -137,3 +167,4 @@
     </script>
 </body>
 </html>
+        
