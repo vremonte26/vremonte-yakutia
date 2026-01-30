@@ -15,132 +15,62 @@
     <link rel="apple-touch-icon" href="assets/icon-192.png">
     
     <!-- Styles -->
-    <style>
-        /* БАЗОВЫЕ СТИЛИ */
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
-            font-family: -apple-system, sans-serif;
-            background: linear-gradient(135deg, #1a2980 0%, #26d0ce 100%);
-            color: white;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-        
-        .app {
-            text-align: center;
-            max-width: 400px;
-            width: 100%;
-        }
-        
-        .logo {
-            font-size: 4em;
-            margin-bottom: 20px;
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); }
-        }
-        
-        h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-        }
-        
-        p {
-            font-size: 1.2em;
-            margin-bottom: 40px;
-            opacity: 0.9;
-        }
-        
-        .buttons {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-        
-        .btn {
-            padding: 20px;
-            font-size: 1.2em;
-            border: none;
-            border-radius: 15px;
-            background: white;
-            color: #1a2980;
-            font-weight: 600;
-            cursor: pointer;
-            transition: transform 0.3s;
-        }
-        
-        .btn:hover {
-            transform: translateY(-2px);
-        }
-        
-        .btn-client {
-            background: linear-gradient(90deg, #ff6b35, #ffa500);
-            color: white;
-        }
-        
-        .btn-master {
-            background: white;
-            color: #1a2980;
-        }
-        
-        .divider {
-            margin: 10px 0;
-            opacity: 0.7;
-        }
-        
-        .stats {
-            margin-top: 40px;
-            font-size: 0.9em;
-            opacity: 0.8;
-        }
-    </style>
+    <link rel="stylesheet" href="css/style.css">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="app">
-        <div class="logo">🏔️</div>
-        <h1>ВРЕМОНТЕ</h1>
-        <p>Безопасные услуги в Якутии</p>
-        
-        <div class="buttons">
-            <button class="btn btn-client" onclick="showClient()">
-                <span style="font-size: 1.3em">🎯</span><br>
-                СОЗДАТЬ ЗАКАЗ
-            </button>
-            
-            <div class="divider">или</div>
-            
-            <button class="btn btn-master" onclick="showMaster()">
-                <span style="font-size: 1.3em">👷</span><br>
-                СТАТЬ МАСТЕРОМ
-            </button>
-        </div>
-        
-        <div class="stats">
-            <p>🔒 Все мастера проверены</p>
-            <p>📍 Только ваш район (10 км)</p>
-            <p>⭐ Бесплатно для всех</p>
+    <div id="app">
+        <!-- Приложение загружается сюда через JavaScript -->
+        <div class="loading-screen">
+            <div class="logo">🏔️</div>
+            <h1>Времонте</h1>
+            <p>Загрузка безопасного сервиса...</p>
         </div>
     </div>
 
+    <!-- JavaScript -->
+    <script src="js/app.js"></script>
     <script>
-        function showClient() {
-            alert('Режим клиента - создание заказа\n(скоро будет реализовано)');
-        }
+        // Автоматический запуск при загрузке
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Времонте запускается...');
+            
+            // Если app.js не загрузился, покажем базовый интерфейс
+            setTimeout(function() {
+                if (!window.app) {
+                    document.getElementById('app').innerHTML = `
+                        <div class="container">
+                            <div class="logo">
+                                <div class="logo-icon">🏔️</div>
+                                <h1>Времонте</h1>
+                                <p>Безопасные услуги в Якутии</p>
+                            </div>
+                            
+                            <div class="card">
+                                <button class="btn btn-primary" onclick="showDemo()">
+                                    <span style="font-size: 1.3em">🎯</span><br>
+                                    СОЗДАТЬ ЗАКАЗ<br>
+                                    <small>Нужен мастер</small>
+                                </button>
+                                
+                                <div class="divider">или</div>
+                                
+                                <button class="btn btn-secondary" onclick="showDemo()">
+                                    <span style="font-size: 1.3em">👷</span><br>
+                                    СТАТЬ МАСТЕРОМ<br>
+                                    <small>Ищу работу</small>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }
+            }, 2000);
+        });
         
-        function showMaster() {
-            alert('Режим мастера - лента заказов\n(скоро будет реализовано)');
-        }
-        
-        // Регистрация PWA
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('service-worker.js');
+        function showDemo() {
+            alert('Это демо-версия. Полная версия с:\n\n✅ Telegram-авторизацией\n✅ Лентой заказов\n✅ Системой откликов\n✅ Геолокацией\n\nбудет доступна после настройки.');
         }
     </script>
 </body>
