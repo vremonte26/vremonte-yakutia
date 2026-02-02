@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Времонте | Telegram App</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a2980 0%, #26d0ce 100%);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+        
+        .logo {
+            font-size: 5em;
+            margin-bottom: 20px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        p {
+            font-size: 1.2em;
+            margin-bottom: 30px;
+            opacity: 0.9;
+            max-width: 300px;
+            line-height: 1.5;
+        }
+        
+        .btn {
+            width: 100%;
+            max-width: 300px;
+            padding: 20px;
+            margin: 15px 0;
+            background: white;
+            color: #1a2980;
+            border: none;
+            border-radius: 15px;
+            font-size: 1.2em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        
+        .user-info {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            width: 100%;
+            max-width: 300px;
+        }
+        
+        .features {
+            margin-top: 30px;
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+        
+        .features p {
+            margin: 5px 0;
+            font-size: 1em;
+        }
+        
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="logo">🏔️</div>
+        <h1>ВРЕМОНТЕ</h1>
+        <p id="message">Загрузка приложения...</p>
+        
+        <div id="userInfo" class="user-info hidden">
+            <!-- Информация о пользователе -->
+        </div>
+        
+        <button id="startBtn" class="btn hidden">
+            🚀 НАЧАТЬ РАБОТУ
+        </button>
+        
+        <div class="features">
+            <p>✅ Все мастера проверены по паспорту</p>
+            <p>📍 Только ваш район (10 км радиус)</p>
+            <p>📞 Контакт виден только после выбора</p>
+            <p>⭐ Бесплатно для клиентов и мастеров</p>
+        </div>
+    </div>
+
+    <script>
+        // Telegram Web App
+        let tg = null;
+        let user = null;
+        
+        // Инициализация Telegram
+        function initTelegram() {
+            console.log('🔧 Инициализация Telegram Web App...');
+            
+            if (window.Telegram && window.Telegram.WebApp) {
+                tg = window.Telegram.WebApp;
+                
+                // Настройка Telegram Web App
+                tg.expand(); // На весь экран
+                tg.enableClosingConfirmation(); // Подтверждение закрытия
+                tg.setHeaderColor('#1a2980'); // Цвет шапки
+                tg.setBackgroundColor('#1a2980'); // Цвет фона
+                tg.ready(); // Готово
+                
+                console.log('✅ Telegram Web App инициализирован');
+                
+                // Получаем данные пользователя
+                user = tg.initDataUnsafe.user;
+                
+                if (user) {
+                    console.log('👤 Пользователь Telegram:', user);
+                    showUserInfo(user);
+                    return true;
+                } else {
+                    console.log('⚠️ Пользователь не авторизован в Telegram');
+                    showMessage('Для доступа нажмите START в боте');
+                    return false;
+                }
+            }
+            
+            console.log('❌ Telegram Web App не найден');
+            showMessage('Откройте через Telegram бота @rem_2ykt_bot');
+            return false;
+        }
+        
+        // Показываем информацию о пользователе
+        function showUserInfo(userData) {
+            const userInfo = document.getElementById('userInfo');
+            const startBtn = document.getElementById('startBtn');
+            const message = document.getElementById('message');
+            
+            // Заполняем информацию
+            userInfo.innerHTML = `
+                <strong>👤 ${userData.first_name || ''} ${userData.last_name || ''}</strong><br>
+                <small>@${userData.username || 'без username'}</small>
+            `;
+            
+            // Показываем элементы
+            userInfo.classList.remove('hidden');
+            startBtn.classList.remove('hidden');
+            
+            // Обновляем сообщение
+            message.textContent = `Добро пожаловать, ${userData.first_name || 'пользователь'}!`;
+            
+            // Сохраняем пользователя
+            localStorage.setItem('vremonte_user', JSON.stringify({
+                id: userData.id,
+                firstName: userData.first_name,
+                lastName: userData.last_name,
+                username: userData.username,
+                isTelegram: true,
+                timestamp: new Date().toISOString()
+            }));
+        }
+        
+        // Показываем сообщение
+        function showMessage(text) {
+            document.getElementById('message').textContent = text;
+        }
+        
+        // Начать работу
+        function startApp() {
+            if (user) {
+                alert(`🎉 Отлично, ${user.first_name || 'друг'}!\n\nПриложение "Времонте" готово к работе.\n\nТеперь вы можете:\n\n🎯 СОЗДАВАТЬ ЗАКАЗЫ — находить проверенных мастеров\n👷 СТАТЬ МАСТЕРОМ — брать заказы в радиусе 10 км\n📍 РАБОТАТЬ БЕЗОПАСНО — все пользователи проверены\n⭐ БЕСПЛАТНО — никаких комиссий\n\nЖелаем успешной работы!`);
+                
+                // Переходим в основное приложение
+                window.location.href = 'index.html?telegram=true&user=' + user.id;
+            } else {
+                alert('⚠️ Для полного доступа:\n\n1. Откройте @rem_2ykt_bot в Telegram\n2. Нажмите START\n3. Разрешите доступ к данным\n4. Вернитесь в приложение');
+            }
+        }
+        
+        // Инициализация при загрузке
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Приложение загружено');
+            
+            // Инициализируем Telegram
+            const isTelegram = initTelegram();
+            
+            // Назначаем обработчик кнопки
+            document.getElementById('startBtn').onclick = startApp;
+            
+            // Если не Telegram, через 3 секунды показываем инструкцию
+            if (!isTelegram) {
+                setTimeout(function() {
+                    showMessage('📱 Откройте через Telegram:\n\n1. Найдите @rem_2ykt_bot\n2. Нажмите START\n3. Откроется это приложение');
+                    
+                    // Создаём ссылку на бота
+                    const botLink = document.createElement('a');
+                    botLink.href = 'https://t.me/rem_2ykt_bot';
+                    botLink.textContent = 'Открыть @rem_2ykt_bot в Telegram';
+                    botLink.style.color = 'white';
+                    botLink.style.textDecoration = 'underline';
+                    botLink.style.marginTop = '20px';
+                    botLink.style.display = 'block';
+                    botLink.target = '_blank';
+                    
+                    document.getElementById('app').appendChild(botLink);
+                }, 3000);
+            }
+        });
+        
+        // Делаем функции глобальными
+        window.startApp = startApp;
+        window.initTelegram = initTelegram;
+    </script>
+</body>
+</html>
