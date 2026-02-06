@@ -1,200 +1,282 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Времонте | Telegram</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <title>🏔️ Времонте | Якутия</title>
+    <meta name="theme-color" content="#1a2980">
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- Стили -->
     <style>
+        /* БАЗОВЫЕ СТИЛИ */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: -apple-system, sans-serif;
-            background: #1a2980;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a2980 0%, #26d0ce 100%);
             color: white;
             min-height: 100vh;
             padding: 20px;
             display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
-            text-align: center;
         }
+        
+        .container {
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
         .logo {
             font-size: 5em;
             margin-bottom: 20px;
             animation: pulse 2s infinite;
         }
+        
         @keyframes pulse {
             0% { transform: scale(1); }
             50% { transform: scale(1.1); }
             100% { transform: scale(1); }
         }
+        
         h1 {
             font-size: 2.5em;
             margin-bottom: 10px;
+            font-weight: 700;
         }
+        
         p {
             font-size: 1.2em;
             margin-bottom: 30px;
             opacity: 0.9;
-            max-width: 300px;
+            line-height: 1.5;
         }
+        
+        /* КНОПКИ */
         .btn {
+            display: block;
             width: 100%;
-            max-width: 300px;
             padding: 20px;
-            margin: 10px 0;
-            background: white;
-            color: #1a2980;
+            margin: 15px 0;
             border: none;
             border-radius: 15px;
             font-size: 1.2em;
             font-weight: 600;
             cursor: pointer;
-            transition: transform 0.3s;
+            transition: all 0.3s;
+            text-decoration: none;
         }
+        
+        .btn-primary {
+            background: white;
+            color: #1a2980;
+        }
+        
+        .btn-secondary {
+            background: #ff6b35;
+            color: white;
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 2px solid white;
+            color: white;
+        }
+        
         .btn:hover {
             transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
         }
-        .user-info {
-            background: rgba(255,255,255,0.1);
-            padding: 15px;
-            border-radius: 10px;
+        
+        .btn:active {
+            transform: translateY(-1px);
+        }
+        
+        /* ФОРМЫ */
+        .form-group {
             margin: 20px 0;
-            font-size: 0.9em;
+            text-align: left;
         }
-        .features {
-            margin-top: 30px;
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 10px;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: white;
+            background: rgba(255,255,255,0.2);
+        }
+        
+        input::placeholder {
+            color: rgba(255,255,255,0.7);
+        }
+        
+        /* КАРТОЧКИ */
+        .card {
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            backdrop-filter: blur(10px);
+        }
+        
+        /* РАЗДЕЛИТЕЛЬ */
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 25px 0;
+            color: rgba(255,255,255,0.7);
+        }
+        
+        .divider::before, .divider::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .divider::before {
+            margin-right: 15px;
+        }
+        
+        .divider::after {
+            margin-left: 15px;
+        }
+        
+        /* СПИСКИ */
+        .list {
+            text-align: left;
+        }
+        
+        .list-item {
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .list-item:last-child {
+            border-bottom: none;
+        }
+        
+        /* СТАТУСЫ */
+        .status {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+        
+        .status-new {
+            background: #4CAF50;
+        }
+        
+        .status-pending {
+            background: #FF9800;
+        }
+        
+        .status-inwork {
+            background: #2196F3;
+        }
+        
+        .status-completed {
+            background: #9C27B0;
+        }
+        
+        /* УТИЛИТЫ */
+        .hidden {
+            display: none !important;
+        }
+        
+        .text-center {
+            text-align: center;
+        }
+        
+        .text-small {
             font-size: 0.9em;
             opacity: 0.8;
+        }
+        
+        .mt-20 { margin-top: 20px; }
+        .mb-20 { margin-bottom: 20px; }
+        
+        /* ФУТЕР */
+        .footer {
+            margin-top: 40px;
+            font-size: 0.9em;
+            opacity: 0.7;
+        }
+        
+        /* АДАПТИВНОСТЬ */
+        @media (max-width: 414px) {
+            body {
+                padding: 15px;
+            }
+            
+            .logo {
+                font-size: 4em;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+            
+            .btn {
+                padding: 18px;
+                font-size: 1.1em;
+            }
+        }
+        
+        /* ДЛЯ PWA */
+        @media (display-mode: standalone) {
+            body {
+                padding-top: env(safe-area-inset-top);
+                padding-bottom: env(safe-area-inset-bottom);
+            }
         }
     </style>
 </head>
 <body>
-    <div id="app">
+    <div id="app" class="container">
+        <!-- Приложение загружается здесь -->
         <div class="logo">🏔️</div>
         <h1>ВРЕМОНТЕ</h1>
-        <p id="message">Загрузка приложения...</p>
-        
-        <div id="userInfo" class="user-info" style="display: none;">
-            <!-- Информация о пользователе -->
-        </div>
-        
-        <button id="startBtn" class="btn" style="display: none;">
-            НАЧАТЬ РАБОТУ
-        </button>
-        
-        <div class="features">
-            <p>✅ Проверенные мастера</p>
-            <p>📍 10 км радиус</p>
-            <p>⭐ Бесплатно</p>
-        </div>
+        <p>Загрузка безопасного сервиса...</p>
     </div>
 
+    <!-- JavaScript -->
+    <script src="js/app-simple.js"></script>
     <script>
-        // Инициализация Telegram Web App
-        let tg = null;
-        let user = null;
-        
-        function initTelegram() {
-            if (window.Telegram && window.Telegram.WebApp) {
-                tg = window.Telegram.WebApp;
-                
-                // Настраиваем Telegram
-                tg.expand(); // На весь экран
-                tg.enableClosingConfirmation();
-                tg.setHeaderColor('#1a2980');
-                tg.setBackgroundColor('#1a2980');
-                tg.ready();
-                
-                // Получаем данные пользователя
-                user = tg.initDataUnsafe.user;
-                
-                if (user) {
-                    // Показываем информацию о пользователе
-                    document.getElementById('userInfo').style.display = 'block';
-                    document.getElementById('userInfo').innerHTML = `
-                        👤 <strong>${user.first_name || ''} ${user.last_name || ''}</strong><br>
-                        @${user.username || 'без username'}
-                    `;
-                    
-                    document.getElementById('message').textContent = 
-                        `Добро пожаловать, ${user.first_name || 'пользователь'}!`;
-                    
-                    // Показываем кнопку
-                    document.getElementById('startBtn').style.display = 'block';
-                    document.getElementById('startBtn').textContent = '🚀 НАЧАТЬ РАБОТУ';
-                    
-                    // Сохраняем пользователя
-                    localStorage.setItem('telegram_user', JSON.stringify({
-                        id: user.id,
-                        firstName: user.first_name,
-                        lastName: user.last_name,
-                        username: user.username,
-                        isTelegram: true
-                    }));
-                    
-                    console.log('✅ Пользователь Telegram авторизован:', user);
-                } else {
-                    document.getElementById('message').textContent = 
-                        'Для доступа нажмите START в боте';
-                }
-                
-                return true;
-            }
-            return false;
+        // Инициализация PWA
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('service-worker.js');
         }
         
-        // Функция начала работы
-        function startApp() {
-            if (user) {
-                alert(`🎉 Отлично, ${user.first_name}!\n\nТеперь вы можете:\n\n🎯 Создавать заказы\n👷 Искать мастеров\n📍 В радиусе 10 км\n📞 Безопасное общение\n\nПриложение готово к работе!`);
-                
-                // Переход в основное приложение
-                window.location.href = 'index.html?telegram=true&user=' + user.id;
-            } else {
-                alert('⚠️ Откройте это приложение через бота Telegram\n\n1. Найдите бота\n2. Нажмите START\n3. Разрешите доступ');
-            }
+        // Проверка PWA режима
+        if (window.matchMedia('(display-mode: standalone)').matches) {
+            console.log('📱 Приложение запущено как PWA');
         }
-        
-        // Инициализация при загрузке
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('🚀 Telegram приложение загружено');
-            
-            // Пробуем инициализировать Telegram
-            const isTelegram = initTelegram();
-            
-            // Если не Telegram, показываем инструкцию
-            if (!isTelegram) {
-                document.getElementById('message').textContent = 
-                    'Откройте это приложение через Telegram бота';
-            }
-            
-            // Назначаем кнопку
-            document.getElementById('startBtn').onclick = startApp;
-            
-            // Если через 5 секунд нет Telegram, показываем ошибку
-            setTimeout(() => {
-                if (!tg) {
-                    document.getElementById('message').textContent = 
-                        '❌ Загрузите через Telegram\n\nСсылка на бота появится ниже...';
-                    
-                    // Создаём ссылку на бота
-                    const botLink = document.createElement('a');
-                    botLink.href = 'https://t.me/rem_2ykt_bot'; // Замените позже
-                    botLink.textContent = 'Открыть бота в Telegram';
-                    botLink.style.color = 'white';
-                    botLink.style.textDecoration = 'underline';
-                    botLink.style.marginTop = '20px';
-                    botLink.style.display = 'block';
-                    
-                    document.getElementById('app').appendChild(botLink);
-                }
-            }, 5000);
-        });
-        
-        // Делаем функцию глобальной
-        window.startApp = startApp;
     </script>
 </body>
 </html>
