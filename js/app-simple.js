@@ -1,12 +1,13 @@
-// ВРЕМОНТЕ | Упрощённая версия без Telegram
+// ВРЕМОНТЕ | Упрощённая версия с Google Sheets API
 
 class VremonteApp {
     constructor() {
         this.user = null;
         this.currentScreen = 'auth';
         this.demoMode = false;
+        this.phone = '';
         
-        // ВАЖНО: Вставьте сюда ваш реальный URL из Google Apps Script
+        // 🔴 ВАЖНО: Вставьте ваш реальный URL из Google Apps Script
         this.apiUrl = 'https://script.google.com/macros/s/AKfycbxCUWzXjixUSnBpJryihnd8Cm5oBzoMHikk-NuQLVKLJmg3y5iaLAoGaUu9iK6P6lgP/exec';
         
         // Тестовые данные
@@ -63,6 +64,7 @@ class VremonteApp {
     
     init() {
         console.log('🚀 Времонте запускается...');
+        console.log('API URL:', this.apiUrl);
         
         // Проверяем сохранённую сессию
         this.checkAuth();
@@ -112,28 +114,12 @@ class VremonteApp {
                 app.innerHTML = this.getMainScreen();
                 break;
                 
-            case 'client':
-                app.innerHTML = this.getClientScreen();
-                break;
-                
             case 'client-create':
                 app.innerHTML = this.getCreateOrderScreen();
                 break;
                 
-            case 'client-orders':
-                app.innerHTML = this.getClientOrdersScreen();
-                break;
-                
-            case 'master':
-                app.innerHTML = this.getMasterScreen();
-                break;
-                
             case 'master-feed':
                 app.innerHTML = this.getMasterFeedScreen();
-                break;
-                
-            case 'profile':
-                app.innerHTML = this.getProfileScreen();
                 break;
                 
             default:
@@ -275,7 +261,7 @@ class VremonteApp {
         `;
     }
     
-    // ЭКРАН СОЗДАНИЯ ЗАКАЗА (КЛИЕНТ)
+    // ЭКРАН СОЗДАНИЯ ЗАКАЗА
     getCreateOrderScreen() {
         return `
             <div style="text-align: left;">
@@ -346,7 +332,7 @@ class VremonteApp {
         `;
     }
     
-    // ЛЕНТА ЗАКАЗОВ (МАСТЕР)
+    // ЛЕНТА ЗАКАЗОВ
     getMasterFeedScreen() {
         const ordersHtml = this.orders.map(order => `
             <div class="card" style="margin-bottom: 15px;">
@@ -386,11 +372,6 @@ class VremonteApp {
             <h1>👷 Лента заказов</h1>
             <p>Заказы в радиусе 10 км от вас</p>
             
-            <div style="text-align: left; margin-bottom: 15px;">
-                <div class="text-small">📍 Ваше местоположение: <strong>определено</strong></div>
-                <div class="text-small">📡 Радиус поиска: <strong>10 км</strong></div>
-            </div>
-            
             ${ordersHtml}
             
             <div class="card">
@@ -406,6 +387,7 @@ class VremonteApp {
     }
     
     // МЕТОДЫ ПРИЛОЖЕНИЯ
+    
     sendSMS() {
         const phone = document.getElementById('phone')?.value;
         if (!phone || phone.length < 10) {
@@ -433,9 +415,9 @@ class VremonteApp {
                 registered: new Date().toISOString()
             };
             
-            // Регистрируем пользователя в Google Sheets
+            // 🔴 РЕГИСТРАЦИЯ В GOOGLE SHEETS
             try {
-                console.log('📡 Регистрируем пользователя...');
+                console.log('📡 Регистрирую пользователя в Google Sheets...');
                 
                 const response = await fetch(this.apiUrl, {
                     method: 'POST',
@@ -451,19 +433,19 @@ class VremonteApp {
                 });
                 
                 const result = await response.json();
-                console.log('✅ Ответ API:', result);
+                console.log('✅ Ответ от Google Sheets:', result);
                 
-                if (result.success && result.user_id) {
+                if (result.success) {
                     this.user.backend_id = result.user_id;
-                    alert('✅ Регистрация в облаке успешна!\nВаш ID: ' + result.user_id);
+                    alert('✅ Данные сохранены в облаке!');
                 }
             } catch (error) {
-                console.log('⚠️ Ошибка регистрации:', error);
-                alert('⚠️ Данные сохранены локально. Связь с сервером позже.');
+                console.log('⚠️ Ошибка подключения к Google Sheets:', error);
+                alert('⚠️ Данные сохранены локально. Свяжемся с сервером позже.');
             }
             
             localStorage.setItem('vremonte_user', JSON.stringify(this.user));
-            localStorage.setItem('vremonte_token', 'demo_token_' + Date.now());
+            localStorage.setItem('vremonte_token', 'token_' + Date.now());
             
             this.currentScreen = 'main';
             this.render();
@@ -472,41 +454,6 @@ class VremonteApp {
         } else {
             alert('❌ Неверный код. Попробуйте снова.\nДемо-код: 1234');
         }
-    }
-    
-    startDemo() {
-        this.demoMode = true;
-        this.user = {
-            id: 'demo_001',
-            name: 'Демо Пользователь',
-            phone: '+7 (999) 123-45-67',
-            role: 'client',
-            isDemo: true
-        };
-        
-        localStorage.setItem('vremonte_demo', 'true');
-        localStorage.setItem('vremonte_user', JSON.stringify(this.user));
-        localStorage.setItem('vremonte_token', 'demo_token');
-        
-        this.currentScreen = 'main';
-        this.render();
-        
-        alert('🎮 ДЕМО-РЕЖИМ АКТИВИРОВАН!\n\nТеперь вы можете тестировать все функции приложения:\n\n🎯 Создавать заказы\n👷 Искать работу мастерам\n📍 Работать в радиусе 10 км\n📞 Безопасное общение\n\nВсе данные сохраняются локально.');
-    }
-    
-    showClientCreate() {
-        this.currentScreen = 'client-create';
-        this.render();
-    }
-    
-    showClientOrders() {
-        this.currentScreen = 'client-orders';
-        this.render();
-    }
-    
-    showMasterFeed() {
-        this.currentScreen = 'master-feed';
-        this.render();
     }
     
     async createOrder() {
@@ -526,12 +473,11 @@ class VremonteApp {
             category: document.getElementById('orderCategory')?.value || 'другое'
         };
         
-        // Показываем загрузку
         alert('📡 Отправляем заказ на сервер...');
         
         try {
-            // Отправляем заказ в Google Sheets
-            console.log('📡 Создаем заказ...');
+            // 🔴 СОЗДАНИЕ ЗАКАЗА В GOOGLE SHEETS
+            console.log('📡 Создаю заказ в Google Sheets...');
             
             const response = await fetch(this.apiUrl, {
                 method: 'POST',
@@ -552,10 +498,10 @@ class VremonteApp {
             });
             
             const result = await response.json();
-            console.log('✅ Ответ API:', result);
+            console.log('✅ Ответ от Google Sheets:', result);
             
             if (result.success) {
-                // Также сохраняем локально
+                // Сохраняем локально
                 const newOrder = {
                     id: result.order_id || Date.now(),
                     title: title,
@@ -571,14 +517,14 @@ class VremonteApp {
                 
                 this.orders.unshift(newOrder);
                 
-                alert(`✅ Заказ создан в облаке!\n\n"${title}"\n\nАдрес: ${address}\n\nID заказа: ${result.order_id}\n\nТеперь мастера увидят ваш заказ.`);
+                alert(`✅ Заказ создан!\n\n"${title}"\n\nАдрес: ${address}\n\nТеперь мастера увидят ваш заказ.`);
                 this.backToMain();
             } else {
-                alert('❌ Ошибка создания заказа: ' + (result.error || 'Попробуйте снова.'));
+                alert('❌ Ошибка: ' + (result.error || 'Попробуйте снова.'));
             }
             
         } catch (error) {
-            console.log('⚠️ Ошибка отправки:', error);
+            console.log('⚠️ Ошибка подключения:', error);
             alert('⚠️ Заказ сохранен локально. Отправим на сервер позже.');
             
             // Локальное сохранение
@@ -604,7 +550,7 @@ class VremonteApp {
         const order = this.orders.find(o => o.id === orderId);
         if (order && order.responses < order.maxResponses) {
             order.responses++;
-            alert(`✅ Вы откликнулись на заказ!\n\n"${order.title}"\n\nКлиент увидит вас в списке из 5 мастеров. Если он выберет вас — увидите его телефон и адрес.\n\nСтарайтесь откликаться быстро — только первые 5 мастеров попадают к клиенту!`);
+            alert(`✅ Вы откликнулись на заказ!\n\n"${order.title}"`);
         }
     }
     
@@ -629,7 +575,45 @@ class VremonteApp {
         this.currentScreen = 'auth';
         this.render();
         
-        alert('👋 Вы вышли из аккаунта.\n\nВозвращайтесь!');
+        alert('👋 Вы вышли из аккаунта.');
+    }
+    
+    startDemo() {
+        this.demoMode = true;
+        this.user = {
+            id: 'demo_001',
+            name: 'Демо Пользователь',
+            phone: '+7 (999) 123-45-67',
+            role: 'client',
+            isDemo: true
+        };
+        
+        localStorage.setItem('vremonte_demo', 'true');
+        localStorage.setItem('vremonte_user', JSON.stringify(this.user));
+        localStorage.setItem('vremonte_token', 'demo_token');
+        
+        this.currentScreen = 'main';
+        this.render();
+        
+        alert('🎮 ДЕМО-РЕЖИМ АКТИВИРОВАН!\n\nТестируйте все функции.');
+    }
+    
+    showClientCreate() {
+        this.currentScreen = 'client-create';
+        this.render();
+    }
+    
+    showClientOrders() {
+        alert('📋 Здесь будут ваши заказы\n\n(Функция в разработке)');
+    }
+    
+    showMasterFeed() {
+        this.currentScreen = 'master-feed';
+        this.render();
+    }
+    
+    showMasterProfile() {
+        alert('📊 Здесь будет статистика мастера\n\n(Функция в разработке)');
     }
     
     backToAuth() {
@@ -650,8 +634,3 @@ class VremonteApp {
 // Создаём глобальный экземпляр приложения
 const app = new VremonteApp();
 window.app = app;
-
-// Экспорт для использования в других модулях
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { app };
-}
