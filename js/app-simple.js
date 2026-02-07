@@ -6,6 +6,9 @@ class VremonteApp {
         this.currentScreen = 'auth';
         this.demoMode = false;
         
+        // ВАЖНО: Вставьте сюда ваш реальный URL из Google Apps Script
+        this.apiUrl = 'https://script.google.com/macros/s/AKfycbxCUWzXjixUSnBpJryihnd8Cm5oBzoMHikk-NuQLVKLJmg3y5iaLAoGaUu9iK6P6lgP/exec';
+        
         // Тестовые данные
         this.orders = [
             {
@@ -417,18 +420,47 @@ class VremonteApp {
         alert(`📱 Код отправлен на ${phone}\n\nДемо-код: 1234`);
     }
     
-    verifySMS() {
+    async verifySMS() {
         const code = document.getElementById('smsCode')?.value;
         
         if (code === '1234' || code === '0000') {
             // Успешная авторизация
             this.user = {
-                id: Date.now().toString(),
+                id: 'USER_' + Date.now(),
                 name: 'Пользователь',
                 phone: this.phone,
                 role: 'client',
                 registered: new Date().toISOString()
             };
+            
+            // Регистрируем пользователя в Google Sheets
+            try {
+                console.log('📡 Регистрируем пользователя...');
+                
+                const response = await fetch(this.apiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        action: 'register',
+                        name: this.user.name,
+                        phone: this.user.phone,
+                        role: this.user.role
+                    })
+                });
+                
+                const result = await response.json();
+                console.log('✅ Ответ API:', result);
+                
+                if (result.success && result.user_id) {
+                    this.user.backend_id = result.user_id;
+                    alert('✅ Регистрация в облаке успешна!\nВаш ID: ' + result.user_id);
+                }
+            } catch (error) {
+                console.log('⚠️ Ошибка регистрации:', error);
+                alert('⚠️ Данные сохранены локально. Связь с сервером позже.');
+            }
             
             localStorage.setItem('vremonte_user', JSON.stringify(this.user));
             localStorage.setItem('vremonte_token', 'demo_token_' + Date.now());
@@ -477,7 +509,7 @@ class VremonteApp {
         this.render();
     }
     
-    createOrder() {
+    async createOrder() {
         const title = document.getElementById('orderTitle')?.value;
         const address = document.getElementById('orderAddress')?.value;
         
@@ -486,24 +518,86 @@ class VremonteApp {
             return;
         }
         
-        const newOrder = {
-            id: Date.now(),
+        const orderData = {
             title: title,
             description: document.getElementById('orderDescription')?.value || '',
             address: address,
             budget: document.getElementById('orderBudget')?.value || 'Договорная',
-            category: document.getElementById('orderCategory')?.value || 'другое',
-            createdAt: 'Только что',
-            responses: 0,
-            maxResponses: 5,
-            status: 'active'
+            category: document.getElementById('orderCategory')?.value || 'другое'
         };
         
-        this.orders.unshift(newOrder);
+        // Показываем загрузку
+        alert('📡 Отправляем заказ на сервер...');
         
-        alert(`✅ Заказ создан!\n\n"${title}"\n\nАдрес: ${address}\n\nТеперь мастера в радиусе 10 км увидят ваш заказ. Первые 5 откликнувшихся появятся у вас в списке.`);
-        
-        this.backToMain();
+        try {
+            // Отправляем заказ в Google Sheets
+            console.log('📡 Создаем заказ...');
+            
+            const response = await fetch(this.apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    action: 'create_order',
+                    user_id: this.user.id || 'demo_user',
+                    title: orderData.title,
+                    description: orderData.description,
+                    address: orderData.address,
+                    budget: orderData.budget,
+                    category: orderData.category,
+                    phone: this.user.phone || '+79991234567',
+                    client_name: this.user.name || 'Демо Клиент'
+                })
+            });
+            
+            const result = await response.json();
+            console.log('✅ Ответ API:', result);
+            
+            if (result.success) {
+                // Также сохраняем локально
+                const newOrder = {
+                    id: result.order_id || Date.now(),
+                    title: title,
+                    description: orderData.description,
+                    address: address,
+                    budget: orderData.budget,
+                    category: orderData.category,
+                    createdAt: 'Только что',
+                    responses: 0,
+                    maxResponses: 5,
+                    status: 'active'
+                };
+                
+                this.orders.unshift(newOrder);
+                
+                alert(`✅ Заказ создан в облаке!\n\n"${title}"\n\nАдрес: ${address}\n\nID заказа: ${result.order_id}\n\nТеперь мастера увидят ваш заказ.`);
+                this.backToMain();
+            } else {
+                alert('❌ Ошибка создания заказа: ' + (result.error || 'Попробуйте снова.'));
+            }
+            
+        } catch (error) {
+            console.log('⚠️ Ошибка отправки:', error);
+            alert('⚠️ Заказ сохранен локально. Отправим на сервер позже.');
+            
+            // Локальное сохранение
+            const newOrder = {
+                id: Date.now(),
+                title: title,
+                description: orderData.description,
+                address: address,
+                budget: orderData.budget,
+                category: orderData.category,
+                createdAt: 'Только что',
+                responses: 0,
+                maxResponses: 5,
+                status: 'active'
+            };
+            
+            this.orders.unshift(newOrder);
+            this.backToMain();
+        }
     }
     
     respondToOrder(orderId) {
